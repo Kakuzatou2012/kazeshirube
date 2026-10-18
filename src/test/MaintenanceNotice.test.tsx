@@ -5,7 +5,7 @@ import { NoticeModal } from '../components/NoticeModal';
 import { INITIAL_NOTICES } from '../data/initialData';
 
 describe('メンテナンス画面とお知らせモーダルのテスト', () => {
-  it('メンテナンス画面が日本語で正しく描画される', () => {
+  it('メンテナンス画面が日本語で描画される', () => {
     const handleToggle = vi.fn();
     const handleOpenModal = vi.fn();
 
@@ -17,28 +17,26 @@ describe('メンテナンス画面とお知らせモーダルのテスト', () =
       />
     );
 
-    expect(screen.getByText('ただいま風の整備中です')).toBeInTheDocument();
-    expect(screen.getByText('整備中案内')).toBeInTheDocument();
-    expect(screen.getByText('通常公開に切り替える 管理者用')).toBeInTheDocument();
+    expect(screen.getByText('ただいまメンテナンス中です')).toBeInTheDocument();
+    expect(screen.getByText('通常公開に切り替える (管理者用)')).toBeInTheDocument();
   });
 
-  it('管理者トグルをクリックするとコールバックが呼ばれる', () => {
+  it('管理者用トグルボタンを押すと切り替えコールバックが呼ばれる', () => {
     const handleToggle = vi.fn();
-    const handleOpenModal = vi.fn();
 
     render(
       <MaintenanceScreen
         notices={INITIAL_NOTICES}
         onToggleMaintenance={handleToggle}
-        onOpenNoticeModal={handleOpenModal}
+        onOpenNoticeModal={vi.fn()}
       />
     );
 
-    fireEvent.click(screen.getByText('通常公開に切り替える 管理者用'));
+    fireEvent.click(screen.getByText('通常公開に切り替える (管理者用)'));
     expect(handleToggle).toHaveBeenCalledTimes(1);
   });
 
-  it('お知らせモーダルが開いているとき、新着お知らせが表示される', () => {
+  it('お知らせモーダルが開いているとき一覧が表示される', () => {
     const handleClose = vi.fn();
 
     render(
@@ -49,7 +47,7 @@ describe('メンテナンス画面とお知らせモーダルのテスト', () =
       />
     );
 
-    expect(screen.getByText('お知らせ 新着情報')).toBeInTheDocument();
-    expect(screen.getByText('言葉の佇まいに関する大切なお願い')).toBeInTheDocument();
+    expect(screen.getByText('お知らせ一覧')).toBeInTheDocument();
+    expect(screen.getByText('言葉の佇まいに関するお願い')).toBeInTheDocument();
   });
 });

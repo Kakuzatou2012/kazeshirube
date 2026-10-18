@@ -1,5 +1,7 @@
+import React from 'react';
 import { Notice } from '../types';
 import { Bell, X, Info, AlertTriangle, RefreshCw } from 'lucide-react';
+import { formatTimestamp } from '../utils/formatTimestamp';
 
 interface NoticeModalProps {
   isOpen: boolean;
@@ -7,7 +9,7 @@ interface NoticeModalProps {
   notices: Notice[];
 }
 
-export const NoticeModal = ({ isOpen, onClose, notices }: NoticeModalProps) => {
+export const NoticeModal: React.FC<NoticeModalProps> = ({ isOpen, onClose, notices }) => {
   if (!isOpen) return null;
 
   const getCategoryIcon = (category: string) => {
@@ -27,7 +29,7 @@ export const NoticeModal = ({ isOpen, onClose, notices }: NoticeModalProps) => {
         <div className="modal-header">
           <div className="modal-header-title">
             <Bell size={20} className="modal-title-icon" />
-            <h2>お知らせ 新着情報</h2>
+            <h2>お知らせ一覧</h2>
           </div>
           <button className="icon-button" onClick={onClose} aria-label="閉じる">
             <X size={20} />
@@ -46,7 +48,7 @@ export const NoticeModal = ({ isOpen, onClose, notices }: NoticeModalProps) => {
                     {getCategoryIcon(notice.category)}
                     {notice.category}
                   </span>
-                  <span className="notice-date">{notice.date}</span>
+                  <span className="notice-date">{formatTimestamp(notice.createdAt)}</span>
                 </div>
                 <h3 className="notice-item-title">{notice.title}</h3>
                 <p className="notice-item-content">{notice.content}</p>

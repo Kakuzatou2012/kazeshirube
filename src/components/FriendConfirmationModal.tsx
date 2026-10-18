@@ -1,22 +1,28 @@
-import { useState } from 'react';
-import { MatchRoomParticipant, Friend } from '../types';
+import React, { useState } from 'react';
+import { Friend } from '../types';
 import { HeartHandshake, Check, X, Sparkles } from 'lucide-react';
+
+export interface ConfirmationParticipant {
+  id: string;
+  name: string;
+  avatar?: string;
+}
 
 interface FriendConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  participants: MatchRoomParticipant[];
+  participants: ConfirmationParticipant[];
   selfId: string;
   onConfirmFriendship: (newFriends: Friend[]) => void;
 }
 
-export const FriendConfirmationModal = ({
+export const FriendConfirmationModal: React.FC<FriendConfirmationModalProps> = ({
   isOpen,
   onClose,
   participants,
   selfId,
   onConfirmFriendship,
-}: FriendConfirmationModalProps) => {
+}) => {
   const [choices, setChoices] = useState<Record<string, boolean>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -39,14 +45,15 @@ export const FriendConfirmationModal = ({
         newFriends.push({
           id: p.id,
           name: p.name,
-          avatar: p.avatar,
-          bio: '風の対話で縁を結んだ大切なお相手です。',
+          avatar: p.avatar || '風',
+          bio: '',
           connectedAt: Date.now(),
           messages: [
             {
               id: `dm-init-${p.id}`,
               senderId: p.id,
-              content: 'この度は縁を結んでいただきありがとうございます。今後ともよろしくお願いいたします。',
+              receiverId: selfId,
+              content: 'この度はフレンド登録ありがとうございます。よろしくお願いいたします。',
               createdAt: Date.now(),
             },
           ],
@@ -61,7 +68,7 @@ export const FriendConfirmationModal = ({
       setIsSubmitted(false);
       setChoices({});
       onClose();
-    }, 2000);
+    }, 1500);
   };
 
   return (
@@ -70,7 +77,7 @@ export const FriendConfirmationModal = ({
         <div className="modal-header">
           <div className="modal-header-title">
             <HeartHandshake size={22} className="modal-title-icon" />
-            <h2>この方と縁を結びますか？</h2>
+            <h2>この方とフレンドになりますか？</h2>
           </div>
           <button className="icon-button" onClick={onClose} aria-label="閉じる">
             <X size={20} />
@@ -81,19 +88,14 @@ export const FriendConfirmationModal = ({
           {isSubmitted ? (
             <div className="submit-success-box">
               <Sparkles size={36} style={{ marginBottom: '1rem', color: 'var(--accent-gold)' }} />
-              <p className="success-title">お互いの意志が確認されました</p>
-              <p>相互に縁を結んだ方は結ばれし縁一覧に追加されました。引き続き個別メッセージにて対話をお楽しみいただけます。</p>
+              <p className="success-title">意志が確認されました</p>
+              <p>相互に登録を選択した場合はフレンド一覧に追加されます。</p>
             </div>
           ) : (
             <div>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
-                10分間の対話のひととき、誠にありがとうございました。
-                お互いに縁を結ぶを選択した場合のみ、フレンドとして登録され個別のメッセージを交わすことができるようになります。
-              </p>
-
               <div className="confirmation-participants-list">
                 {others.length === 0 ? (
-                  <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>他の対話相手はいませんでした。</p>
+                  <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>他のお相手はいませんでした。</p>
                 ) : (
                   others.map((p) => {
                     const currentChoice = choices[p.id];
@@ -101,7 +103,7 @@ export const FriendConfirmationModal = ({
                       <div key={p.id} className="confirmation-item">
                         <div className="confirmation-user-info">
                           <span className="confirmation-avatar">{p.avatar || '風'}</span>
-                          <span className="confirmation-name">{p.name}様</span>
+                          <span className="confirmation-name">{p.name} 様</span>
                         </div>
                         <div className="confirmation-actions">
                           <button
@@ -110,7 +112,7 @@ export const FriendConfirmationModal = ({
                             onClick={() => handleSelectChoice(p.id, true)}
                           >
                             <Check size={16} />
-                            縁を結ぶ
+                            登録する
                           </button>
                           <button
                             type="button"
@@ -118,7 +120,7 @@ export const FriendConfirmationModal = ({
                             onClick={() => handleSelectChoice(p.id, false)}
                           >
                             <X size={16} />
-                            静かに見送る
+                            見送る
                           </button>
                         </div>
                       </div>
@@ -140,7 +142,7 @@ export const FriendConfirmationModal = ({
               onClick={handleSubmit}
               disabled={others.length > 0 && Object.keys(choices).length < others.length}
             >
-              意志を決定する
+              決定する
             </button>
           </div>
         )}

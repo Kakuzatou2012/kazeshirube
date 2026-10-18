@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kazeshirube.vercel.app/sitemap.xml
+Sitemap: https://kaze-shirube.vercel.app/sitemap.xml

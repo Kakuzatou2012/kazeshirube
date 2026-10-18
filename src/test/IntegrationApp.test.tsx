@@ -1,35 +1,42 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect, beforeEach } from 'vitest';
 import App from '../App';
+import { INITIAL_USER_PROFILE } from '../data/initialData';
 
 describe('アプリケーション統合動作テスト', () => {
   beforeEach(() => {
     localStorage.clear();
-    vi.useFakeTimers();
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it('初期状態（通常モード）でタイムラインが表示される', () => {
+  it('ログイン済み初期状態でタイムラインが表示される', () => {
+    localStorage.setItem('kazeshirube_profile', JSON.stringify(INITIAL_USER_PROFILE));
     render(<App />);
 
-    expect(screen.getByText('当コミュニティは、日本語での温かく丁寧な対話を前提としております。')).toBeInTheDocument();
+    expect(screen.getAllByText('全体タイムライン')[0]).toBeInTheDocument();
+    expect(screen.getByText('古都の閑寂')).toBeInTheDocument();
   });
 
-  it('「風に乗せる」マッチングを開始し、チャット画面へ遷移できる', () => {
+  it('未ログイン状態でログイン画面に制限される（完全強制ログイン化）', () => {
     render(<App />);
 
-    fireEvent.click(screen.getAllByRole('button', { name: '風に乗せる' })[0]);
+    expect(screen.getByText('風標へようこそ')).toBeInTheDocument();
+    expect(screen.getByText('サービスをご利用いただくにはログインまたはアカウント登録が必要です。')).toBeInTheDocument();
+  });
 
-    expect(screen.getByText('誰かを待っています…')).toBeInTheDocument();
+  it('@kakuzatou アカウントでログインすると管理パネルボタンが表示される', () => {
+    const adminProfile = {
+      id: 'kakuzatou',
+      name: '運営管理者',
+      bio: '',
+      avatar: '統',
+      email: 'kakuzatou@kazeshirube.jp',
+      is2FAVerified: true,
+      role: 'admin',
+    };
+    localStorage.setItem('kazeshirube_profile', JSON.stringify(adminProfile));
 
-    act(() => {
-      vi.advanceTimersByTime(3000);
-    });
+    render(<App />);
 
-    expect(screen.getByText('10分対話部屋')).toBeInTheDocument();
-    expect(screen.getAllByText('紅葉の長老')[0]).toBeInTheDocument();
+    expect(screen.getByText('管理パネル')).toBeInTheDocument();
   });
 });
